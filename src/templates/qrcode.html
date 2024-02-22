@@ -1,0 +1,16 @@
+<style>
+    .qr-title {
+        font-size: 2.5rem;
+        text-align: center!important;
+        margin-top: 0.25rem!important;
+        margin-bottom: 0.25rem!important;
+    }
+
+    .modal-body .qr-title {
+        font-size: 1.5rem;
+    }
+</style>
+
+<!-- <div class="qr-title" ><strong>Telegram: </strong><a href="https://t.me/mammut_vpn"><strong>@mammut_vpn</strong></a></div> -->
+<img id="qrcode" style="width: 100%" src="{{ qrcode(image, box_size=12, border=5) }}">
+<div class="qr-title"><strong>{{ text }}</strong></div>
