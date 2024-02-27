@@ -98,7 +98,7 @@
         if (response.peer_data.length === 0) {
             document.querySelector(".peer_list").innerHTML = `<div class="col-12" style="text-align: center; margin-top: 1.5rem"><h3 class="text-muted">（●´∧｀●） هیچ کاربری ندارید </h3></div>`;
         } else {
-            let display_mode = response.peer_display_mode === "list" ? "col-12" : "col-sm-6 col-lg-4";
+            let display_mode = response.peer_display_mode === "list" ? "col-12" : "col-sm-6 col-lg-3";
             response.peer_data.forEach(function (peer) {
                 let total_r = 0;
                 let total_s = 0;
@@ -106,7 +106,9 @@
                 total_s += peer.cumu_sent;
                 let spliter = '<div class="w-100"></div>';
 
-                let ends_at = peer.ends_at != null ? peer.ends_at.split("T")[0] : peer.ends_at
+                // let ends_at = peer.ends_at != null ? peer.ends_at.split("T")[0] + peer.ends_at.split("T")[1].split(":").remove : peer.ends_at
+                let ends_at = peer.ends_at != null ? peer.ends_at.split("T")[0] + " " + peer.ends_at.split("T")[1].split(":").splice(0,2).join(":") : peer.ends_at;
+                
                 let bandwith = (peer.bandwidth / (1024 * 1024 * 1024)).toLocaleString(undefined, { minimumFractionDigits: 0 });
 
                 let checked = peer.end_active == true ? 'checked' : 'nope';
@@ -114,23 +116,24 @@
                 let switch_class = peer.end_active == true ? 'success' : 'danger';
                 
                 let peer_name =
-                    '<div class="col-sm display" style="display: flex; align-items: center; margin-bottom: 0.2rem">' +
-                        '<h6 style="text-transform: uppercase; margin: 0; margin-left: auto !important; display: flex; align-items: center;">'+
+                    '<div class="col-sm display" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem">' +
+                        '<h6 style="text-transform: uppercase; display: flex; align-items: center;">'+
                         '<span class="dot dot-'+peer.status+'" style="margin-right: 0px !important;" data-toggle="tooltip" data-placement="left" title="کاربر متصل است!"></span>'+
 
                         '<a href="#" data-id="'+response.name+'" id="'+ peer.id +'" '+ checked +' class="switch-peer text-'+switch_class+' tt"><i class="bi bi-toggle2-'+on_off+'"></i></a>'+
                         '<div class="spinner-border text-primary" role="status" style="display: none"><span class="sr-only"></span></div>'+
 
                         '</h6>' +
-                        '<h5 style="margin: 0 0 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">'+ (peer.name === "" ? "Untitled" : peer.name) +'</h5>' +
+                        // '<div class="peer_data_group" style="margin-bottom: 0.5rem; padding-right:10px"><p class="text-primary" style="text-transform: uppercase; margin-bottom: 0; margin-left:5px; float:left"><small><i class="bi bi-arrow-down-right"></i> '+ roundN(peer.total_receive + total_r, 2) +'GB</small></p> <p class="text-success" style="text-transform: uppercase; margin-bottom: 0; float:left; margin-left:15px;"><small><i class="bi bi-arrow-up-right"></i> '+ roundN(peer.total_sent + total_s, 2) +'GB</small></p> </div>' +
+                        '<h5 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">'+ (peer.name === "" ? "Untitled" : peer.name) +'</h5>' +
                     '</div>';
-                let peer_transfer = '<div class="col-12 peer_data_group" style="margin-bottom: 0.5rem; padding-right:10px"><p class="text-primary" style="text-transform: uppercase; margin-bottom: 0; margin-left:5px; float:left"><small><i class="bi bi-arrow-down-right"></i> '+ roundN(peer.total_receive + total_r, 4) +'GB</small></p> <p class="text-success" style="text-transform: uppercase; margin-bottom: 0; float:left; margin-left:15px;"><small><i class="bi bi-arrow-up-right"></i> '+ roundN(peer.total_sent + total_s, 4) +'GB</small></p> </div>';
+                let peer_transfer = '<div class="col-12 peer_data_group" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-right:10px"><p class="text-primary" style="text-transform: uppercase; margin-bottom: 0; float:left"><small><i class="bi bi-arrow-down-right"></i> '+ roundN(peer.total_receive + total_r, 2) +'GB</small></p> <p class="text-success" style="text-transform: uppercase; margin-bottom: 0; float:left;"><small><i class="bi bi-arrow-up-right"></i> '+ roundN(peer.total_sent + total_s, 2) +'GB</small></p> </div>';
                 let peer_key = '<div class="col-12"><small class="text-muted" style="display: flex"><strong>کلید خصوصی :</strong><strong style="margin-left: auto!important; opacity: 0; transition: 0.2s ease-in-out" class="text-primary">جهت کپی کلیک کنید</strong></small> <h6 style="float:left; text-align:left" class="col-12"><samp class="ml-auto key public_key_mobile" style=" ">'+peer.id+'</samp></h6></div>';
-                let peer_allowed_ip = '<div class="col-12"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-12">'+peer.allowed_ip+'</h6></div>';
-                let peer_ends_at = '<div class="col-12"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+ends_at+'</h6> </div>';
+                let peer_allowed_ip = '<div class="col-12"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.allowed_ip+'</h6></div>';
+                let peer_ends_at = '<div class="col-12"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+ends_at+'</h6> </div>';
                 let peer_bandwith = '<div class="col-12"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+bandwith+'</h6> </div>';
-                let peer_latest_handshake = '<div class="col-12"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-12">'+peer.latest_handshake+'</h6> </div>';
-                let peer_endpoint = '<div class="col-12"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-12">'+peer.endpoint+'</h6></div>';
+                let peer_latest_handshake = '<div class="col-12"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.latest_handshake+'</h6> </div>';
+                let peer_endpoint = '<div class="col-12"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.endpoint+'</h6></div>';
                 let peer_enable = '<div class="col-sm text-right"><small class="text-muted"><strong>وضعیت :</strong></small><h6 style="float:left;text-transform: uppercase;">' + (peer.end_active ? 'فعال' : 'غیرفعال') + '</h6></div>';                
                 let peer_control = '<div class="col-12"><hr><div class="button-group" style="display:flex"><button type="button" class="btn btn-outline-primary btn-setting-peer btn-control" id="'+peer.id+'" data-toggle="modal"><i class="bi bi-gear-fill" data-toggle="tooltip" data-placement="bottom" title="تنظیمات کاربر"></i></button> <button type="button" class="btn btn-outline-danger btn-delete-peer btn-control" id="'+peer.id+'" data-toggle="modal"><i class="bi bi-x-circle-fill" data-toggle="tooltip" data-placement="bottom" title="حذف کاربر"></i></button>';
                 if (peer.private_key !== ""){
@@ -143,8 +146,9 @@
                     '<div class="card-body">' +
                     '<div class="row">' +
                     peer_name +
-                    spliter +
                     peer_transfer +
+                    '<hr>' +
+                    // spliter +
                     peer_key +
                     peer_allowed_ip +
                     peer_ends_at +
