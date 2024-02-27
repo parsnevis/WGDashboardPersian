@@ -37,6 +37,9 @@ from util import regex_match, check_DNS, check_Allowed_IPs, check_remote_endpoin
 # Dashboard Version
 DASHBOARD_VERSION = 'v2.0.0'
 
+UTC = pytz.utc
+TIME_ZONE = pytz.timezone('Asia/Tehran')
+
 # WireGuard's configuration path
 WG_CONF_PATH = None
 
@@ -2298,10 +2301,37 @@ if __name__ == "__main__":
             for name in get_config_names():
                 get_latest_handshake(name)
                 get_transfer(name)
+                
+                
+    def delete_inactive_peer():
+        config_files = glob(os.path.join(WG_CONF_PATH, '*.conf'))
+        config_names = [Path(file).stem for file in config_files]
+        
+        
+        dtime = datetime.now()
+        new_date = dtime - relativedelta(days=7)
+        ends_at = int(time.mktime(datetime.strptime(str(new_date), "%Y-%m-%d %H:%M:%S.%f").timetuple()))
+        
+        conn = sqlite3.connect('/root/WGDashboardPersian/src/db/wgdashboard.db')
+        print(DB_FILE_PATH)
+        cur = conn.cursor()
+        for config_name in config_names:
+            query = f"""
+                UPDATE {config_name}
+                SET bandwidth = ?
+                WHERE ends_at < ?
+            """
+            cur.execute(query, (
+                0,
+                ends_at
+            ))
+        conn.commit()
+        print("ddd")
 
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(test, seconds=10, trigger='interval')
+    scheduler.add_job(delete_inactive_peer, seconds=10, trigger='interval')
     scheduler.start()
 
     init_dashboard()
