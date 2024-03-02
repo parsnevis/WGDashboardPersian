@@ -114,6 +114,7 @@
                 let checked = peer.end_active == true ? 'checked' : 'nope';
                 let on_off = peer.end_active == true ? 'on' : 'off';
                 let switch_class = peer.end_active == true ? 'success' : 'danger';
+                let total_usege = roundN(peer.total_receive + total_r + peer.total_sent + total_s, 2)
                 
                 let peer_name =
                     '<div class="col-sm display" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem">' +
@@ -131,7 +132,7 @@
                 let peer_key = '<div class="col-12"><small class="text-muted" style="display: flex"><strong>کلید خصوصی :</strong><strong style="margin-left: auto!important; opacity: 0; transition: 0.2s ease-in-out" class="text-primary">جهت کپی کلیک کنید</strong></small> <h6 style="float:left; text-align:left" class="col-12"><samp class="ml-auto key public_key_mobile" style=" ">'+peer.id+'</samp></h6></div>';
                 let peer_allowed_ip = '<div class="col-12"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.allowed_ip+'</h6></div>';
                 let peer_ends_at = '<div class="col-12"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+ends_at+'</h6> </div>';
-                let peer_bandwith = '<div class="col-12"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+bandwith+'</h6> </div>';
+                let peer_bandwith = '<div class="col-12"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-6">'+bandwith+' ( '+ total_usege +' )</h6> </div>';
                 let peer_latest_handshake = '<div class="col-12"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.latest_handshake+'</h6> </div>';
                 let peer_endpoint = '<div class="col-12"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.endpoint+'</h6></div>';
                 let peer_enable = '<div class="col-sm text-right"><small class="text-muted"><strong>وضعیت :</strong></small><h6 style="float:left;text-transform: uppercase;">' + (peer.end_active ? 'فعال' : 'غیرفعال') + '</h6></div>';                
@@ -1012,6 +1013,8 @@ $body.on("click", ".btn-setting-peer", function () {
     $("#setting_modal .peer_name").html(peer_name);
     $("#setting_modal #peer_name_textbox").val(response.name);
 
+    console.log(response.ends_at);
+    
     const peerEndTextbox = $("#setting_modal #peer_end_textbox");
     peerEndTextbox.data("end-time", response.ends_at);
     const endTime = peerEndTextbox.data("end-time");
