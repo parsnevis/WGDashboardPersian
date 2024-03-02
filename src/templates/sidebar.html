@@ -69,7 +69,7 @@
                         </li>
                     {% endif %}
                 </ul>
-                    
+
                 {% if "username" in session %}
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -78,6 +78,11 @@
                             </a>
                         </li>
                     </ul>
+                {% endif %}
+                {% if "username" in session %}
+                <form action="/reboot" method="post">
+                    <button type="submit" class="btn btn-danger">ریبوت سرور</button>
+                </form>
                 {% endif %}
                 <hr>
                 <ul class="nav flex-column">
