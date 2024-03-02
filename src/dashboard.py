@@ -35,7 +35,7 @@ from util import regex_match, check_DNS, check_Allowed_IPs, check_remote_endpoin
     check_IP_with_range, clean_IP_with_range
 
 # Dashboard Version
-DASHBOARD_VERSION = 'v2.0.0'
+DASHBOARD_VERSION = 'v2.0.1'
 
 UTC = pytz.utc
 TIME_ZONE = pytz.timezone('Asia/Tehran')
@@ -50,13 +50,12 @@ DB_PATH = os.path.join(configuration_path, 'db')
 if not os.path.isdir(DB_PATH):
     os.mkdir(DB_PATH)
     
-
-
 DB_FILE_PATH = os.path.join(configuration_path, 'db', 'wgdashboard.db')
 DASHBOARD_CONF = os.path.join(configuration_path, 'wg-dashboard.ini')
-DOWNLOAD_FILE_PATH = os.path.join(configuration_path, 'downloads/')
-if not os.path.exists(DOWNLOAD_FILE_PATH):
-    os.makedirs(DOWNLOAD_FILE_PATH)
+DOWNLOAD_FILE_PATH = os.path.join(configuration_path, 'downloads')
+
+if not os.path.isdir(DOWNLOAD_FILE_PATH):
+    os.mkdir(DOWNLOAD_FILE_PATH)
 
 # Upgrade Required
 UPDATE = None
@@ -1440,7 +1439,7 @@ def add_peer_bulk(config_name):
         keys[i]['ends_at'] = ends_at
             
         bandwidth = 100 * pow(1024, 3)
-        keys[i]['bandwidth'] = ends_at
+        # keys[i]['bandwidth'] = bandwidth
 
         update = f"UPDATE {config_name} SET name = '{keys[i]['name']}', private_key = '{keys[i]['privateKey']}', " \
                  f"DNS = '{dns_addresses}', created_at = {time.time()}, " \
@@ -2061,6 +2060,14 @@ def downloads(file_name):
     zip_file_name = f"{DOWNLOAD_FILE_PATH}{file_name}"
     response = send_file(zip_file_name, as_attachment=True)
     return response
+
+@app.route('/reboot', methods=['post'])
+def reboot():
+    try:
+        subprocess.call(["shutdown", "-r", "-t", "0"])
+        return redirect(url_for('index'))
+    except subprocess.CalledProcessError:
+        return "امکان ریبوت سرور وجود ندارد"
 
 """
 Dashboard Tools Related
