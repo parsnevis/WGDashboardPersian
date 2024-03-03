@@ -35,7 +35,7 @@ from util import regex_match, check_DNS, check_Allowed_IPs, check_remote_endpoin
     check_IP_with_range, clean_IP_with_range
 
 # Dashboard Version
-DASHBOARD_VERSION = 'v2.0.2'
+DASHBOARD_VERSION = 'v2.0.1'
 
 UTC = pytz.utc
 TIME_ZONE = pytz.timezone('Asia/Tehran')
@@ -1637,6 +1637,7 @@ def save_peer_setting(config_name):
     allowed_ip = data['allowed_ip']
     endpoint_allowed_ip = data['endpoint_allowed_ip']
     preshared_key = data['preshared_key']
+    
     peer = g.cur.execute(
         "SELECT id, end_active, total_receive, total_sent, total_data FROM " + config_name + " WHERE id = ?",
         (id,)).fetchone()
@@ -1694,11 +1695,11 @@ def save_peer_setting(config_name):
 
             subprocess.check_output(f'wg-quick save {config_name}', shell=True, stderr=subprocess.STDOUT)
 
-            sql = "UPDATE " + config_name + " SET name = ?, bandwidth = ?, private_key = ?, DNS = ?, endpoint_allowed_ip = ?, mtu = ?, keepalive = ?, preshared_key = ?, end_active = ?, ends_at = ? WHERE id = ?"
+            sql = "UPDATE " + config_name + " SET name = ?, bandwidth = ?, private_key = ?, DNS = ?, endpoint_allowed_ip = ?, mtu = ?, keepalive = ?, preshared_key = ?, end_active = ?, ends_at = ?, remote_endpoint = ? WHERE id = ?"
 
             g.cur.execute(sql, (name, bandwidth, private_key, dns_addresses, endpoint_allowed_ip, data["MTU"],
                                 data["keep_alive"], preshared_key, int(end_active),
-                                ends_at, id))
+                                ends_at, data['remote_endpoint'], id))
 
             return jsonify({"status": "success", "msg": ""})
         except subprocess.CalledProcessError as exc:
@@ -1721,12 +1722,20 @@ def get_peer_name(config_name):
     data = request.get_json()
     peer_id = data['id']
     result = g.cur.execute(
-        "SELECT name, allowed_ip, DNS, private_key, endpoint_allowed_ip, mtu, keepalive, preshared_key, bandwidth, ends_at, end_active FROM "
+        "SELECT name, allowed_ip, DNS, private_key, endpoint_allowed_ip, mtu, keepalive, preshared_key, bandwidth, ends_at, end_active, remote_endpoint FROM "
         + config_name + " WHERE id = ?", (peer_id,)).fetchall()
-    data = {"name": result[0][0], "bandwidth": result[0][8], "end_active": bool(result[0][10]), "allowed_ip": result[0][1],
+    
+    data = {"name": result[0][0],
+            "bandwidth": result[0][8],
+            "end_active": bool(result[0][10]),
+            "allowed_ip": result[0][1],
             "DNS": result[0][2],
-            "private_key": result[0][3], "endpoint_allowed_ip": result[0][4],
-            "mtu": result[0][5], "keep_alive": result[0][6], "preshared_key": result[0][7],
+            "private_key": result[0][3],
+            "endpoint_allowed_ip": result[0][4],
+            "mtu": result[0][5],
+            "keep_alive": result[0][6],
+            "remote_endpoint": result[0][11],
+            "preshared_key": result[0][7],
             "ends_at": datetime.fromtimestamp(result[0][9]).astimezone(pytz.timezone('Asia/Tehran')).isoformat() if
             result[0][9] else None}
     return jsonify(data)
