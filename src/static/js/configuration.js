@@ -132,15 +132,15 @@
                     '</div>';
                 let peer_transfer = '<div class="col-12 peer_data_group" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-right:10px"><p class="text-primary" style="text-transform: uppercase; margin-bottom: 0; float:left"><small><i class="bi bi-arrow-down-right"></i> '+ roundN(peer.total_receive + total_r, 2) +'GB</small></p> <p class="text-success" style="text-transform: uppercase; margin-bottom: 0; float:left;"><small><i class="bi bi-arrow-up-right"></i> '+ roundN(peer.total_sent + total_s, 2) +'GB</small></p> </div>';
                 let peer_key = '<div class="col-12"><small class="text-muted" style="display: flex"><strong>کلید خصوصی :</strong><strong style="margin-left: auto!important; opacity: 0; transition: 0.2s ease-in-out" class="text-primary">جهت کپی کلیک کنید</strong></small> <h6 style="float:left; text-align:left" class="col-12"><samp class="ml-auto key public_key_mobile" style=" ">'+peer.id+'</samp></h6></div>';
-                let peer_allowed_ip = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.allowed_ip+'</h6></div>';
-                let peer_created_at = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>تاریخ ایجاد :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+created_at+'</h6> </div>';
-                let peer_ends_at = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+ends_at+'</h6> </div>';
-                let peer_bandwith = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-6">'+bandwith+' ( '+ total_usege +' )</h6> </div>';
-                let peer_latest_handshake = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.latest_handshake+'</h6> </div>';
-                let peer_endpoint = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.endpoint+'</h6></div>';
-                let peer_dns = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>دی ان اس :</strong></small><h6 style="float:left;text-transform: uppercase;">' + dns + '</h6></div>';                
-                let peer_remote_endpoint = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>سرور ریموت :</strong></small><h6 style="float:left;text-transform: uppercase;">' + remote_endpoint + '</h6></div>';                
-                let peer_enable = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>وضعیت :</strong></small><h6 class="text-' + switch_class + '" style="float:left;text-transform: uppercase;">' + (peer.end_active ? 'فعال' : 'غیرفعال') + '</h6></div>';                
+                let peer_allowed_ip = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; " class="col-6">'+peer.allowed_ip+'</h6></div>';
+                let peer_created_at = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>تاریخ ایجاد :</strong></small> <h6 style="float:left; text-align:left;  direction: ltr;" class="col-8">'+created_at+'</h6> </div>';
+                let peer_ends_at = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left;  direction: ltr;" class="col-8">'+ends_at+'</h6> </div>';
+                let peer_bandwith = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left;  direction: ltr;" class="col-6">'+bandwith+' ( '+ total_usege +' )</h6> </div>';
+                let peer_latest_handshake = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; " class="col-6">'+peer.latest_handshake+'</h6> </div>';
+                let peer_endpoint = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; " class="col-6">'+peer.endpoint+'</h6></div>';
+                let peer_dns = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>دی ان اس :</strong></small><h6 style="float:left;">' + dns + '</h6></div>';                
+                let peer_remote_endpoint = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>سرور ریموت :</strong></small><h6 style="float:left;">' + remote_endpoint + '</h6></div>';                
+                let peer_enable = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>وضعیت :</strong></small><h6 class="text-' + switch_class + '" style="float:left;">' + (peer.end_active ? 'فعال' : 'غیرفعال') + '</h6></div>';                
                 let peer_control = '<div class="col-12"><hr><div class="button-group" style="display:flex"><button type="button" class="btn btn-outline-primary btn-setting-peer btn-control" id="'+peer.id+'" data-toggle="modal"><i class="bi bi-gear-fill" data-toggle="tooltip" data-placement="bottom" title="تنظیمات کاربر"></i></button> <button type="button" class="btn btn-outline-danger btn-delete-peer btn-control" id="'+peer.id+'" data-toggle="modal"><i class="bi bi-x-circle-fill" data-toggle="tooltip" data-placement="bottom" title="حذف کاربر"></i></button>';
                 if (peer.private_key !== ""){
                     peer_control += '<div class="share_peer_btn_group" style="margin-right: auto !important; display: inline"><button type="button" class="btn btn-outline-success btn-qrcode-peer btn-control" data-imgsrc="/qrcode/'+response.name+'?id='+encodeURIComponent(peer.id)+'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 19px;" fill="#28a745"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2z"/></svg></button><a href="/download/'+response.name+'?id='+encodeURIComponent(peer.id)+'" class="btn btn-outline-info btn-download-peer btn-control"><i class="bi bi-files" data-toggle="tooltip" data-placement="bottom" title="دانلود کاربر"></i></a><a href="/full_download/'+response.name+'?id='+encodeURIComponent(peer.id)+'" class="btn btn-outline-info btn-full-download-peer btn-control"><i class="bi bi-download"></i></a></div>';
@@ -1034,6 +1034,7 @@ $body.on("click", ".btn-setting-peer", function () {
     $("#setting_modal #peer_endpoint_allowed_ips").val(response.endpoint_allowed_ip);
     $("#setting_modal #peer_mtu").val(response.mtu);
     $("#setting_modal #peer_keep_alive").val(response.keep_alive);
+    $("#setting_modal #peer_remote_endpoint").val(response.remote_endpoint);
     $("#setting_modal #peer_preshared_key_textbox").val(response.preshared_key);
     window.configurations.settingModal().toggle();
     window.configurations.endProgressBar();
@@ -1087,6 +1088,7 @@ $("#save_peer_setting").on("click", function () {
     let $peer_preshared_key_textbox = $("#peer_preshared_key_textbox");
     let $peer_mtu = $("#peer_mtu");
     let $peer_keep_alive = $("#peer_keep_alive");
+    let $peer_remote_endpoint = $("#peer_remote_endpoint");
 
     if ($peer_DNS_textbox.val() !== "" &&
         $peer_allowed_ip_textbox.val() !== "" && $peer_endpoint_allowed_ips.val() !== "") {
@@ -1112,6 +1114,7 @@ $("#save_peer_setting").on("click", function () {
                 endpoint_allowed_ip: $peer_endpoint_allowed_ips.val(),
                 MTU: $peer_mtu.val(),
                 keep_alive: $peer_keep_alive.val(),
+                remote_endpoint: $peer_remote_endpoint.val(),
                 preshared_key: $peer_preshared_key_textbox.val()
             }),
             success: function (response) {
