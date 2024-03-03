@@ -572,9 +572,11 @@ def get_peers(config_name, search="", sort_t="status"):
     def cast_data(item):
         ends_at = item.get('ends_at')
         end_active = item.get('end_active')
+        created_at = item.get('created_at')
 
         if ends_at is not None:
             item['ends_at'] = datetime.fromtimestamp(ends_at).isoformat()
+            item['created_at'] = datetime.fromtimestamp(created_at).isoformat()
         else:
             item['ends_at'] = None
 
