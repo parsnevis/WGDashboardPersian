@@ -35,7 +35,7 @@ from util import regex_match, check_DNS, check_Allowed_IPs, check_remote_endpoin
     check_IP_with_range, clean_IP_with_range
 
 # Dashboard Version
-DASHBOARD_VERSION = 'v2.0.1'
+DASHBOARD_VERSION = 'v2.0.4'
 
 UTC = pytz.utc
 TIME_ZONE = pytz.timezone('Asia/Tehran')
