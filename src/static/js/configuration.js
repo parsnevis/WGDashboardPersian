@@ -55,7 +55,7 @@
      * @param response
      */
     function configurationHeader(response) {
-        console.log(response)
+        // console.log(response)
         let $conf_status_btn = document.getElementById("conf_status_btn");
         if (response.checked === "checked") {
             $conf_status_btn.innerHTML = `<a href="#" id="${response.name}" ${response.checked} class="switch text-success"><i class="bi bi-toggle2-on"></i> روشن</a>`;
@@ -93,7 +93,7 @@
      * @param response
      */
     function configurationPeers(response) {
-        console.log(response)
+         console.log(response)
         let result = "";
         if (response.peer_data.length === 0) {
             document.querySelector(".peer_list").innerHTML = `<div class="col-12" style="text-align: center; margin-top: 1.5rem"><h3 class="text-muted">（●´∧｀●） هیچ کاربری ندارید </h3></div>`;
@@ -107,14 +107,16 @@
                 let spliter = '<div class="w-100"></div>';
 
                 // let ends_at = peer.ends_at != null ? peer.ends_at.split("T")[0] + peer.ends_at.split("T")[1].split(":").remove : peer.ends_at
+                let created_at = peer.created_at != null ? peer.created_at.split("T")[0] + " " + peer.created_at.split("T")[1].split(":").splice(0,2).join(":") : peer.created_at;
                 let ends_at = peer.ends_at != null ? peer.ends_at.split("T")[0] + " " + peer.ends_at.split("T")[1].split(":").splice(0,2).join(":") : peer.ends_at;
-                
                 let bandwith = (peer.bandwidth / (1024 * 1024 * 1024)).toLocaleString(undefined, { minimumFractionDigits: 0 });
+                let total_usege = roundN(peer.total_receive + total_r + peer.total_sent + total_s, 2)
+                let dns = peer.DNS;
+                let remote_endpoint = peer.remote_endpoint;
 
                 let checked = peer.end_active == true ? 'checked' : 'nope';
                 let on_off = peer.end_active == true ? 'on' : 'off';
                 let switch_class = peer.end_active == true ? 'success' : 'danger';
-                let total_usege = roundN(peer.total_receive + total_r + peer.total_sent + total_s, 2)
                 
                 let peer_name =
                     '<div class="col-sm display" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem">' +
@@ -126,16 +128,19 @@
 
                         '</h6>' +
                         // '<div class="peer_data_group" style="margin-bottom: 0.5rem; padding-right:10px"><p class="text-primary" style="text-transform: uppercase; margin-bottom: 0; margin-left:5px; float:left"><small><i class="bi bi-arrow-down-right"></i> '+ roundN(peer.total_receive + total_r, 2) +'GB</small></p> <p class="text-success" style="text-transform: uppercase; margin-bottom: 0; float:left; margin-left:15px;"><small><i class="bi bi-arrow-up-right"></i> '+ roundN(peer.total_sent + total_s, 2) +'GB</small></p> </div>' +
-                        '<h5 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">'+ (peer.name === "" ? "Untitled" : peer.name) +'</h5>' +
+                        '<h6 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">'+ (peer.name === "" ? "Untitled" : peer.name) +'</h6>' +
                     '</div>';
                 let peer_transfer = '<div class="col-12 peer_data_group" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-right:10px"><p class="text-primary" style="text-transform: uppercase; margin-bottom: 0; float:left"><small><i class="bi bi-arrow-down-right"></i> '+ roundN(peer.total_receive + total_r, 2) +'GB</small></p> <p class="text-success" style="text-transform: uppercase; margin-bottom: 0; float:left;"><small><i class="bi bi-arrow-up-right"></i> '+ roundN(peer.total_sent + total_s, 2) +'GB</small></p> </div>';
                 let peer_key = '<div class="col-12"><small class="text-muted" style="display: flex"><strong>کلید خصوصی :</strong><strong style="margin-left: auto!important; opacity: 0; transition: 0.2s ease-in-out" class="text-primary">جهت کپی کلیک کنید</strong></small> <h6 style="float:left; text-align:left" class="col-12"><samp class="ml-auto key public_key_mobile" style=" ">'+peer.id+'</samp></h6></div>';
-                let peer_allowed_ip = '<div class="col-12"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.allowed_ip+'</h6></div>';
-                let peer_ends_at = '<div class="col-12"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+ends_at+'</h6> </div>';
-                let peer_bandwith = '<div class="col-12"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-6">'+bandwith+' ( '+ total_usege +' )</h6> </div>';
-                let peer_latest_handshake = '<div class="col-12"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.latest_handshake+'</h6> </div>';
-                let peer_endpoint = '<div class="col-12"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.endpoint+'</h6></div>';
-                let peer_enable = '<div class="col-sm text-right"><small class="text-muted"><strong>وضعیت :</strong></small><h6 style="float:left;text-transform: uppercase;">' + (peer.end_active ? 'فعال' : 'غیرفعال') + '</h6></div>';                
+                let peer_allowed_ip = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>آی پی وایرگارد کاربر :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.allowed_ip+'</h6></div>';
+                let peer_created_at = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>تاریخ ایجاد :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+created_at+'</h6> </div>';
+                let peer_ends_at = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>تاریخ انقضا :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-8">'+ends_at+'</h6> </div>';
+                let peer_bandwith = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>پهنای باند :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase; direction: ltr;" class="col-6">'+bandwith+' ( '+ total_usege +' )</h6> </div>';
+                let peer_latest_handshake = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"> <small class="text-muted"><strong>آخرین اتصال :</strong></small> <h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.latest_handshake+'</h6> </div>';
+                let peer_endpoint = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>آی پی کاربر  :</strong></small><h6 style="float:left; text-align:left; text-transform: uppercase;" class="col-6">'+peer.endpoint+'</h6></div>';
+                let peer_dns = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>دی ان اس :</strong></small><h6 style="float:left;text-transform: uppercase;">' + dns + '</h6></div>';                
+                let peer_remote_endpoint = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>سرور ریموت :</strong></small><h6 style="float:left;text-transform: uppercase;">' + remote_endpoint + '</h6></div>';                
+                let peer_enable = '<div class="col-12 d-flex align-items-center justify-content-between mb-1"><small class="text-muted"><strong>وضعیت :</strong></small><h6 class="text-' + switch_class + '" style="float:left;text-transform: uppercase;">' + (peer.end_active ? 'فعال' : 'غیرفعال') + '</h6></div>';                
                 let peer_control = '<div class="col-12"><hr><div class="button-group" style="display:flex"><button type="button" class="btn btn-outline-primary btn-setting-peer btn-control" id="'+peer.id+'" data-toggle="modal"><i class="bi bi-gear-fill" data-toggle="tooltip" data-placement="bottom" title="تنظیمات کاربر"></i></button> <button type="button" class="btn btn-outline-danger btn-delete-peer btn-control" id="'+peer.id+'" data-toggle="modal"><i class="bi bi-x-circle-fill" data-toggle="tooltip" data-placement="bottom" title="حذف کاربر"></i></button>';
                 if (peer.private_key !== ""){
                     peer_control += '<div class="share_peer_btn_group" style="margin-right: auto !important; display: inline"><button type="button" class="btn btn-outline-success btn-qrcode-peer btn-control" data-imgsrc="/qrcode/'+response.name+'?id='+encodeURIComponent(peer.id)+'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 19px;" fill="#28a745"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2z"/></svg></button><a href="/download/'+response.name+'?id='+encodeURIComponent(peer.id)+'" class="btn btn-outline-info btn-download-peer btn-control"><i class="bi bi-files" data-toggle="tooltip" data-placement="bottom" title="دانلود کاربر"></i></a><a href="/full_download/'+response.name+'?id='+encodeURIComponent(peer.id)+'" class="btn btn-outline-info btn-full-download-peer btn-control"><i class="bi bi-download"></i></a></div>';
@@ -152,11 +157,14 @@
                     // spliter +
                     peer_key +
                     peer_allowed_ip +
+                    peer_created_at +
                     peer_ends_at +
                     peer_bandwith +
                     peer_latest_handshake +
                     spliter +
                     peer_endpoint +
+                    peer_dns +
+                    peer_remote_endpoint +
                     peer_enable +
                     spliter +
                     peer_control +
@@ -1003,17 +1011,14 @@ $body.on("click", ".btn-setting-peer", function () {
     const formatDate = (date) => {
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate();
+      const day = date.getDate().toString().padStart(2, '0');
       const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
-
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
     $("#setting_modal .peer_name").html(peer_name);
     $("#setting_modal #peer_name_textbox").val(response.name);
-
-    console.log(response.ends_at);
     
     const peerEndTextbox = $("#setting_modal #peer_end_textbox");
     peerEndTextbox.data("end-time", response.ends_at);
@@ -1021,7 +1026,7 @@ $body.on("click", ".btn-setting-peer", function () {
     peerEndTextbox.val(formatDate(new Date(endTime)));
 
     const bandwidthInBytes = parseFloat(response.bandwidth);
-    const bandwidthInGB = (bandwidthInBytes / (1024 * 1024 * 1024)).toLocaleString(undefined, { minimumFractionDigits: 4 });
+    const bandwidthInGB = (bandwidthInBytes / (1024 * 1024 * 1024)).toLocaleString(undefined, { minimumFractionDigits: 0 });
     $("#setting_modal #peer_bandwidth_textbox").val(bandwidthInGB);
     $("#setting_modal #peer_private_key_textbox").val(response.private_key);
     $("#setting_modal #peer_DNS_textbox").val(response.DNS);
@@ -1098,7 +1103,8 @@ $("#save_peer_setting").on("click", function () {
             data: JSON.stringify({
                 id: peer_id,
                 name: $peer_name_textbox.val(),
-                bandwidth: $peer_bandwidth_textbox.val(),
+                // bandwidth: $peer_bandwidth_textbox.val(),
+                bandwidth: parseInt($peer_bandwidth_textbox.val().replace(/\D/g,'')),
                 ends_at: +new Date($peer_end_textbox.val()) / 1000,
                 DNS: $peer_DNS_textbox.val(),
                 private_key: $peer_private_key_textbox.val(),
