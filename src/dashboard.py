@@ -35,7 +35,7 @@ from util import regex_match, check_DNS, check_Allowed_IPs, check_remote_endpoin
     check_IP_with_range, clean_IP_with_range
 
 # Dashboard Version
-DASHBOARD_VERSION = 'v2.0.3'
+DASHBOARD_VERSION = 'v2.0.1'
 
 UTC = pytz.utc
 TIME_ZONE = pytz.timezone('Asia/Tehran')
@@ -1003,8 +1003,10 @@ def index():
     if "switch_msg" in session:
         msg = session["switch_msg"]
         session.pop("switch_msg")
+        
+    local_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    return render_template('index.html', conf=get_conf_list(), msg=msg)
+    return render_template('index.html', conf=get_conf_list(), msg=msg, local_time=local_time)
 
 
 # Setting Page
@@ -1268,7 +1270,12 @@ def configuration(config_name):
     peer_mtu = config.get("Peers", "peer_MTU")
     peer_keep_alive = config.get("Peers", "peer_keep_alive")
     config.clear()
-    return render_template('configuration.html', conf=get_conf_list(), conf_data=conf_data,
+    
+    local_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    return render_template('configuration.html', conf=get_conf_list(),
+                           local_time = local_time,
+                           conf_data=conf_data,
                            dashboard_refresh_interval=refresh_interval,
                            DNS=dns_address,
                            endpoint_allowed_ip=allowed_ip,
