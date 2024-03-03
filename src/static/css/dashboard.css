@@ -639,3 +639,7 @@ pre.index-alert{
 .card-danger {
     border-color: var(--bs-danger);
 }
+
+.card-body h6 {
+    margin-bottom: 0;
+}
