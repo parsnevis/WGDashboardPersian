@@ -35,7 +35,7 @@ from util import regex_match, check_DNS, check_Allowed_IPs, check_remote_endpoin
     check_IP_with_range, clean_IP_with_range
 
 # Dashboard Version
-DASHBOARD_VERSION = 'v2.0.4'
+DASHBOARD_VERSION = 'v2.1.0'
 
 UTC = pytz.utc
 TIME_ZONE = pytz.timezone('Asia/Tehran')
@@ -1475,7 +1475,7 @@ def add_peer_bulk(config_name):
         zip_array = get_full_info_peers(config_name, peers_id)
         now = datetime.now()
         file_name = f'{now.strftime("%Y-%m-%d%H%M%S")}.zip'
-        zip_file_name = f'{DOWNLOAD_FILE_PATH}{file_name}'
+        zip_file_name = f'{DOWNLOAD_FILE_PATH}/{file_name}'
         with zipfile.ZipFile(zip_file_name, 'w') as myzip:
             for file in zip_array:
                 myzip.write(file)
@@ -1615,6 +1615,69 @@ def remove_peer(config_name):
         remove_wg = subprocess.check_output(" ".join(wg_command), shell=True, stderr=subprocess.STDOUT)
         save_wg = subprocess.check_output(f"wg-quick save {config_name}", shell=True, stderr=subprocess.STDOUT)
         g.cur.executescript(' '.join(sql_command))
+        g.db.commit()
+    except subprocess.CalledProcessError as exc:
+        return exc.output.strip()
+
+    return "true"
+
+
+@app.route('/update_peer/<config_name>', methods=['POST'])
+def update_peer(config_name):
+    """
+    update peer.
+    @param config_name: Name of WG interface
+    @type config_name: str
+    @return: Return result of action or recommendations
+    @rtype: str
+    """
+
+    if get_conf_status(config_name) == "stopped":
+        return "Your need to turn on " + config_name + " first."
+
+    data = request.get_json()
+    update_keys = data['peer_ids']
+    months = data['duration_update']
+    keys = get_conf_peer_key(config_name)
+
+    if not isinstance(keys, list):
+        return config_name + " در حال اجرا نیست. آن را فعال کنید."
+
+    sql_command = []
+    wg_command = ["wg", "set", config_name]
+    
+    peers = []
+    for update_key in update_keys:
+        peer = g.cur.execute(
+        "SELECT id, ends_at, total_receive, total_sent, total_data, bandwidth, allowed_ip FROM " + config_name + " WHERE id = ?",
+        (update_key,)).fetchone()
+        peers.append(peer)
+        
+    for peer in peers:
+        (id, ends_at, total_receive, total_sent, total_data, bandwidth, allowed_ip) = peer
+            
+        # dtime = datetime.fromtimestamp(ends_at)
+        # new_date = dtime + relativedelta(months=months)
+        # ends_at = int(time.mktime(datetime.strptime(str(new_date), "%Y-%m-%d %H:%M:%S.%f").timetuple()))
+        ends_at = int(ends_at) + (int(months) * int(2629746))
+
+        total_data = float(total_receive) + float(total_sent)
+        total_receive = 0.0
+        total_sent = 0.0
+        bandwidth = 100 * pow(1024, 3) if bandwidth == 0 else bandwidth
+        end_active = 1
+        
+        sql = "UPDATE " + config_name + " SET ends_at = ?, total_receive = ?, total_sent = ?, total_data = ?, bandwidth = ?, end_active = ? WHERE id = ?"
+        g.cur.execute(sql, (ends_at, total_receive, total_sent, total_data, bandwidth, end_active, id))
+        
+        wg_command.append("peer")
+        wg_command.append(id)
+        wg_command.append("allowed-ips")
+        wg_command.append(allowed_ip)
+
+    try:
+        update_wg = subprocess.check_output(" ".join(wg_command), shell=True, stderr=subprocess.STDOUT)
+        save_wg = subprocess.check_output(f"wg-quick save {config_name}", shell=True, stderr=subprocess.STDOUT)
         g.db.commit()
     except subprocess.CalledProcessError as exc:
         return exc.output.strip()
@@ -2031,19 +2094,19 @@ def get_full_info_peers(config_name, peers_id):
                         
                     temp = render_template("qrcode.html", image=peer_data, text=filename)
                     
-                    f = open(f"{DOWNLOAD_FILE_PATH}{filename}.html", "w")
+                    f = open(f"{DOWNLOAD_FILE_PATH}/{filename}.html", "w")
                     f.write(temp)
                     f.close()
                     
-                    with open(f'{DOWNLOAD_FILE_PATH}{filename}.html') as f:
-                        imgkit.from_file(f, f'{DOWNLOAD_FILE_PATH}{filename}.jpg')
+                    with open(f'{DOWNLOAD_FILE_PATH}/{filename}.html') as f:
+                        imgkit.from_file(f, f'{DOWNLOAD_FILE_PATH}/{filename}.jpg')
                         
-                    conf_file = open(f"{DOWNLOAD_FILE_PATH}{filename}.conf", "w")
+                    conf_file = open(f"{DOWNLOAD_FILE_PATH}/{filename}.conf", "w")
                     conf_file.write(peer_data)
                     conf_file.close()
                     
-                    result.append(f'{DOWNLOAD_FILE_PATH}{filename}.jpg')
-                    result.append(f'{DOWNLOAD_FILE_PATH}{filename}.conf')
+                    result.append(f'{DOWNLOAD_FILE_PATH}/{filename}.jpg')
+                    result.append(f'{DOWNLOAD_FILE_PATH}/{filename}.conf')
                     
                 except Exception as e:
                     print("[SCREENSHOT] Error: %s", str(e))
@@ -2064,7 +2127,9 @@ def full_download(config_name):
     zip_array = get_full_info_peers(config_name, [peer_id])
 
     now = datetime.now()
-    zip_file_name = f'{DOWNLOAD_FILE_PATH}{now.strftime("%Y-%m-%d%H%M%S")}.zip'
+    # zip_file_name = f'{DOWNLOAD_FILE_PATH}{now.strftime("%Y-%m-%d%H%M%S")}.zip'
+    file_name = f'{now.strftime("%Y-%m-%d%H%M%S")}.zip'
+    zip_file_name = os.path.join(DOWNLOAD_FILE_PATH, file_name)
     with zipfile.ZipFile(zip_file_name, 'w') as myzip:
         for file in zip_array:
             myzip.write(file)
@@ -2075,7 +2140,8 @@ def full_download(config_name):
 
 @app.route('/downloads/<file_name>', methods=['GET'])
 def downloads(file_name):
-    zip_file_name = f"{DOWNLOAD_FILE_PATH}{file_name}"
+    zip_file_name = f"{DOWNLOAD_FILE_PATH}/{file_name}"
+    # zip_file_name = os.path.join(DOWNLOAD_FILE_PATH, file_name)
     response = send_file(zip_file_name, as_attachment=True)
     return response
 
