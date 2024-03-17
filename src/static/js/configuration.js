@@ -19,6 +19,7 @@
     };
     let addModal = new bootstrap.Modal(document.getElementById('add_modal'), bootstrapModalConfig);
     let deleteBulkModal = new bootstrap.Modal(document.getElementById('delete_bulk_modal'), bootstrapModalConfig);
+    let updateBulkModal = new bootstrap.Modal(document.getElementById('update_bulk_modal'), bootstrapModalConfig);
     let ipModal = new bootstrap.Modal(document.getElementById('available_ip_modal'), bootstrapModalConfig);
     let qrcodeModal = new bootstrap.Modal(document.getElementById('qrcode_modal'), bootstrapModalConfig);
     let settingModal = new bootstrap.Modal(document.getElementById('setting_modal'), bootstrapModalConfig);
@@ -110,7 +111,7 @@
                 let created_at = peer.created_at != null ? peer.created_at.split("T")[0] + " " + peer.created_at.split("T")[1].split(":").splice(0,2).join(":") : peer.created_at;
                 let ends_at = peer.ends_at != null ? peer.ends_at.split("T")[0] + " " + peer.ends_at.split("T")[1].split(":").splice(0,2).join(":") : peer.ends_at;
                 let bandwith = (peer.bandwidth / (1024 * 1024 * 1024)).toLocaleString(undefined, { minimumFractionDigits: 0 });
-                let total_usege = roundN(peer.total_receive + total_r + peer.total_sent + total_s, 2)
+                let total_usege = roundN(peer.total_receive + total_r + peer.total_sent + total_s + peer.total_data, 2)
                 let dns = peer.DNS;
                 let remote_endpoint = peer.remote_endpoint;
 
@@ -297,6 +298,51 @@
                     $('#alertToast').toast('show');
                     $('#alertToast .toast-body').html("کاربر حذف شد!");
                     $("#delete_peer").removeAttr("disabled").html("Delete");
+                }
+            }
+        });
+    }
+
+    /**
+     * Update one peer or by bulk
+     * @param config
+     * @param peer_ids
+     */
+    function updatePeers(config, duration_update, peer_ids) {
+        $.ajax({
+            method: "POST",
+            url: "/update_peer/" + config,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify({"action": "update", "duration_update": duration_update, "peer_ids": peer_ids}),
+            success: function (response) {
+                if (response !== "true") {
+                    // if (window.configurations.updateModal()._isShown) {
+                    //     $("#update_peer_alert").html(response + $("#add_peer_alert").html())
+                    //         .removeClass("d-none");
+                    //     $("#update_peer").removeAttr("disabled").html("Update");
+                    // }
+                    if (window.configurations.updateBulkModal()._isShown) {
+                        let $bulk_update_peer_alert = $("#bulk_update_peer_alert");
+                        $bulk_update_peer_alert.html(response + $bulk_update_peer_alert.html())
+                            .removeClass("d-none");
+                        $("#confirm_update_bulk_peers").removeAttr("disabled").html("Update");
+                    }
+                } else {
+                    // if (window.configurations.updateModal()._isShown) {
+                    //     window.configurations.updateModal().toggle();
+                    // }
+                    if (window.configurations.updateBulkModal()._isShown) {
+                        $("#confirm_update_bulk_peers").removeAttr("disabled").html("Update");
+                        $("#selected_peer_list_update").html('');
+                        $(".update-bulk-peer-item.active").removeClass('active');
+                        window.configurations.updateBulkModal().toggle();
+                    }
+                    window.configurations.loadPeers($('#search_peer_textbox').val());
+                    $('#alertToast').toast('show');
+                    $('#alertToast .toast-body').html("کاربر تمدید شد!");
+                    $("#update_peer").removeAttr("disabled").html("Update");
                 }
             }
         });
@@ -507,7 +553,7 @@
      * Toggle delete by bulk IP
      * @param element
      */
-    function toggleBulkIP(element) {
+    function toggleDeleteBulkIP(element) {
         let $selected_peer_list = $("#selected_peer_list");
         let id = element.data("id");
         let name = element.data("name") === "" ? "Untitled Peer" : element.data("name");
@@ -516,9 +562,28 @@
             $("#selected_peer_list .badge[data-id='" + id + "']").remove();
         } else {
             element.addClass("active");
-            $selected_peer_list.append('<span class="badge badge-danger delete-peer-bulk-badge" style="cursor: pointer; text-overflow: ellipsis; max-width: 100%; overflow-x: hidden" data-id="' + id + '">' + name + ' - ' + id + '</span>');
+            // $selected_peer_list.append('<span class="badge badge-danger delete-peer-bulk-badge" style="cursor: pointer; direction: ltr; text-align: left; color: red; text-overflow: ellipsis; max-width: 100%; overflow-x: hidden" data-id="' + id + '">' + name + ' - ' + id + '</span>');
+            $selected_peer_list.append('<span class="badge badge-danger delete-peer-bulk-badge" style="cursor: pointer; direction: ltr; text-align: left; color: red; text-overflow: ellipsis; max-width: 100%; overflow-x: hidden" data-id="' + id + '">' + name + '</span>');
         }
     }
+
+    /**
+     * Toggle update by bulk IP
+     * @param element
+     */
+        function toggleUpdateBulkIP(element) {
+            let $selected_peer_list = $("#selected_peer_list_update");
+            let id = element.data("id");
+            let name = element.data("name") === "" ? "Untitled Peer" : element.data("name");
+            if (element.hasClass("active")) {
+                element.removeClass("active");
+                $("#selected_peer_list_update .badge[data-id='" + id + "']").remove();
+            } else {
+                element.addClass("active");
+                // $selected_peer_list.append('<span class="badge badge-info update-peer-bulk-badge" style="cursor: pointer; direction: ltr; text-align: left; color: green; text-overflow: ellipsis; max-width: 100%; overflow-x: hidden" data-id="' + id + '">' + name + ' - ' + id + '</span>');
+                $selected_peer_list.append('<span class="badge badge-info update-peer-bulk-badge" style="cursor: pointer; direction: ltr; text-align: left; color: green; text-overflow: ellipsis; max-width: 100%; overflow-x: hidden" data-id="' + id + '">' + name + '</span>');
+            }
+        }
 
     /**
      * Copy public keys to clipboard
@@ -564,6 +629,9 @@
         deleteBulkModal: () => {
             return deleteBulkModal;
         },
+        updateBulkModal: () => {
+            return updateBulkModal;
+        },
         deleteModal: () => {
             return deleteModal;
         },
@@ -586,6 +654,9 @@
         deletePeers: (config, peers_ids) => {
             deletePeers(config, peers_ids);
         },
+        updatePeers: (config, duration_update, peer_ids) => {
+            updatePeers(config, duration_update, peer_ids);
+        },
 
 
         getAvailableIps: () => {
@@ -604,7 +675,10 @@
             copyToClipboard(element);
         },
         toggleDeleteByBulkIP: (element) => {
-            toggleBulkIP(element);
+            toggleDeleteBulkIP(element);
+        },
+        toggleUpdateByBulkIP: (element) => {
+            toggleUpdateBulkIP(element);
         },
         downloadOneConfig: (conf) => {
             download_one_config(conf);
@@ -1407,6 +1481,116 @@ $(window.configurations.deleteBulkModal()._element).on("hidden.bs.modal", functi
         }
     });
 });
+
+
+/**
+ * ====================
+ * Update Peers by Bulk
+ * ====================
+ */
+
+/**
+ * When update peers by bulk clicked
+ */
+$("#update_peers_by_bulk_btn").on("click", () => {
+    let $update_bulk_modal_list = $("#update_bulk_modal .list-group");
+    $update_bulk_modal_list.html('');
+    peers.forEach((peer) => {
+        let name;
+        if (peer.name === "") {
+            name = "Untitled Peer";
+        } else {
+            name = peer.name;
+        }
+        $update_bulk_modal_list.append('<a class="list-group-item list-group-item-action update-bulk-peer-item" style="cursor: pointer" data-id="' +
+            peer.id + '" data-name="' + name + '">' + name + '<br><code>' + peer.id + '</code></a>');
+    });
+    window.configurations.updateBulkModal().toggle();
+});
+
+/**
+ * When the item or tag of update peers by bulk got clicked
+ */
+$body.on("click", ".update-bulk-peer-item", function () {
+    window.configurations.toggleUpdateByBulkIP($(this));
+}).on("click", ".update-peer-bulk-badge", function () {
+    window.configurations.toggleUpdateByBulkIP($(".update-bulk-peer-item[data-id='" + $(this).data("id") + "']"));
+});
+
+$selected_peer_list_update = document.getElementById("selected_peer_list_update");
+
+/**
+ * The change observer to observe when user choose 1 or more peers to delete
+ * @type {MutationObserver}
+ */
+changeObserver = new MutationObserver(function () {
+    if ($selected_peer_list_update.hasChildNodes()) {
+        $("#confirm_update_bulk_peers").removeAttr("disabled");
+    } else {
+        $("#confirm_update_bulk_peers").attr("disabled", "disabled");
+    }
+});
+
+changeObserver.observe($selected_peer_list_update, {
+    attributes: true,
+    childList: true,
+    characterData: true
+});
+
+let confirm_update_bulk_peers_interval;
+
+/**
+ * When the user clicked the update button in the update peers by bulk
+ */
+$("#confirm_update_bulk_peers").on("click", function () {
+    let btn = $(this);
+    if (confirm_update_bulk_peers_interval !== undefined) {
+        clearInterval(confirm_update_bulk_peers_interval);
+        confirm_update_bulk_peers_interval = undefined;
+        btn.html("Update");
+    } else {
+        let timer = 2;
+        btn.html(`Updating in ${timer} secs... Click to cancel`);
+        confirm_update_bulk_peers_interval = setInterval(function () {
+            timer -= 1;
+            btn.html(`Updating in ${timer} secs... Click to cancel`);
+            if (timer === 0) {
+                btn.html(`Updating...`);
+                btn.attr("disabled", "disabled");
+                let ips = [];
+                $selected_peer_list_update.childNodes.forEach((ele) => ips.push(ele.dataset.id));
+                let duration_update = document.getElementById("duration-update").value
+
+                window.configurations.updatePeers(btn.data("conf"), duration_update, ips);
+                clearInterval(confirm_update_bulk_peers_interval);
+                confirm_update_bulk_peers_interval = undefined;
+            }
+        }, 1000);
+    }
+});
+
+/**
+ * تمدید کاربران به انتخاب شما
+ */
+$("#select_all_update_bulk_peers").on("click", function () {
+    $(".update-bulk-peer-item").each(function () {
+        if (!$(this).hasClass("active")) {
+            window.configurations.toggleUpdateByBulkIP($(this));
+        }
+    });
+});
+
+/**
+ * When update peers by bulk window is hidden
+ */
+$(window.configurations.updateBulkModal()._element).on("hidden.bs.modal", function () {
+    $(".update-bulk-peer-item").each(function () {
+        if ($(this).hasClass("active")) {
+            window.configurations.toggleUpdateByBulkIP($(this));
+        }
+    });
+});
+
 
 /**
  * ==============
